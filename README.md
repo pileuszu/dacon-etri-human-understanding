@@ -14,7 +14,7 @@
 
 ## 🚀 시작하기
 - `data/`: 대회 제공 데이터셋 (개인별 라이프로그)
-- `notebooks/`: EDA 및 실험용 Jupyter Notebooks
+- `notebooks/basic_eda/`: 번호순으로 정렬된 기초 EDA 및 실험용 Jupyter Notebooks
 - `src/`: 모델 학습 및 추론용 소스 코드
 
 ---

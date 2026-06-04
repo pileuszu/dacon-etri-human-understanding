@@ -45,8 +45,8 @@
 | :--- | :--- | :--- | :--- |
 | mACStatus | m_charging | Integer | 충전 여부 (0: 미충전, 1: 충전 중) |
 | mActivity | m_activity | Integer | 행동 유형 (0:차량, 1:자전거, 2:보행(foot), 3:정지, 4:알수없음, 5:기울기, 7:걷기, 8:달리기) |
-| mAmbience | m_ambience | List[Label, Prob] | AudioSet Ontology 기반 주변 소음 라벨 및 확률 리스트 |
-| mBle | m_ble | List[ID, RSSI] | 주변 블루투스 기기 주소, 클래스, 신호 세기 리스트 |
+| mAmbience | m_ambience | List[Label, Prob] | AudioSet Ontology 기반 주변 소음 라벨 및 확률 리스트 ([상세 가이드](AUDIOSET_ONTOLOGY.md)) |
+| mBle | m_ble | List[ID, RSSI] | 주변 블루투스 기기 주소, 클래스, 신호 세기 리스트 ([상세 가이드](BLE_DEVICES.md)) |
 | mGps | m_gps | List[Coord, Speed] | 고도, 위도, 경도(상대좌표), 속도 (※ 속도 단위: m/s 또는 km/h 혼재 주의) |
 | mLight | m_light | Float | 스마트폰 측정 주변 조도 (lx 단위, 1/600Hz) |
 | mScreenStatus | m_screen_use | Integer | 화면 사용 여부 (0: 꺼짐, 1: 켜짐) |

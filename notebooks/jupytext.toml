@@ -1,0 +1,4 @@
+# Jupytext configuration for the notebooks directory
+# This pairs every .ipynb notebook with a .py script in the percent format
+
+formats = "ipynb,py:percent"
