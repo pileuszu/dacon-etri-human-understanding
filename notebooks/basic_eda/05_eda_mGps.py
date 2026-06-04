@@ -80,6 +80,7 @@ sns.histplot(df["gps_log_count"], bins=20, color="teal", kde=True)
 plt.title("스캔당 기록된 GPS 포인트 개수 분포")
 plt.xlabel("GPS 포인트 수")
 plt.ylabel("빈도 수")
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_gps_log_count_distribution.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %%
@@ -95,6 +96,7 @@ sns.boxplot(data=df, x="subject_id", y="gps_log_count", hue="subject_id", palett
 plt.title("참여자별 한 스캔당 GPS 포인트 수 분포 비교")
 plt.xlabel("참여자 ID")
 plt.ylabel("GPS 포인트 수")
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_subject_device_count_boxplot.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %% [markdown]
@@ -117,6 +119,7 @@ for idx, sub in enumerate(subjects):
 
 plt.suptitle("참여자별 시간대별 평균 수집 GPS 포인트 수 흐름", fontsize=16, fontweight="bold", y=1.02)
 plt.tight_layout()
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_subject_hourly_device_count_flow.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %% [markdown]
@@ -139,6 +142,7 @@ sns.histplot(speeds[speeds < 20], bins=50, kde=True, color="darkcyan")  # 이상
 plt.title("GPS 감지 속도(Speed) 분포 (20 m/s 이하)")
 plt.xlabel("속도 (m/s)")
 plt.ylabel("밀도")
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_gps_speed_distribution.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %% [markdown]
@@ -160,6 +164,7 @@ sns.boxplot(data=df[df["max_speed"] < 30], x="subject_id", y="max_speed", hue="s
 plt.title("참여자별 감지되는 최대 이동 속도 분포 비교 (30 m/s 이하)")
 plt.xlabel("참여자 ID")
 plt.ylabel("최대 이동 속도 (m/s)")
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_subject_max_speed_boxplot.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %% [markdown]
@@ -177,6 +182,7 @@ sns.barplot(data=moving_pattern, x="hour", y="is_moving", hue="hour", color="tea
 plt.title("전체 시간대별 이동 중인 상태(속도 > 0.5m/s) 비율")
 plt.xlabel("시간대 (Hour)")
 plt.ylabel("이동 비율")
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_moving_ratio_distribution.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %% [markdown]
@@ -197,6 +203,7 @@ for idx, sub in enumerate(subjects):
 
 plt.suptitle("참여자별 시간대별 이동 중인 상태(속도 > 0.5m/s) 비율 흐름", fontsize=16, fontweight="bold", y=1.02)
 plt.tight_layout()
+plt.savefig(os.path.join(BASE_DIR, "reports/images/05_subject_hourly_moving_flow.png"), bbox_inches="tight", dpi=150)
 plt.show()
 
 # %% [markdown]
