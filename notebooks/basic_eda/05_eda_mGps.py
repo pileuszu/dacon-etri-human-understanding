@@ -44,6 +44,31 @@ print(f"데이터 크기 (Shape): {df.shape}")
 df.head()
 
 # %% [markdown]
+# ## 1.5. GPS 로그 평준화 (Flattening) 및 데이터 확인
+#
+# `m_gps` 컬럼은 각 시점별 GPS 기록 리스트로 구성되어 있습니다.
+# 전체 데이터(약 850만 개의 GPS 포인트)를 한 번에 평준화하는 것은 메모리와 시간에 부담을 주므로,
+# 상위 일부 행에 대해 평준화(explode)를 진행하여 상세 데이터 구조를 확인합니다.
+#
+# ### 📌 평준화된 GPS 데이터 컬럼 의미:
+# - **`altitude`**: 수집기기 기준의 고도 값 (미터(m) 단위).
+# - **`latitude`**: 위도 값 (※ 본 대회에서는 참여자의 실제 위치 비식별화를 위해 **상대좌표**로 변환되어 제공됩니다).
+# - **`longitude`**: 경도 값 (※ 본 대회에서는 참여자의 실제 위치 비식별화를 위해 **상대좌표**로 변환되어 제공됩니다).
+# - **`speed`**: 이동 속도 값 (※ 데이터 수집 환경에 따라 m/s와 km/h 단위가 혼재되어 기록되었을 수 있으므로 전처리 및 피처 생성 시 주의가 필요합니다).
+
+# %%
+# 상위 20개 행을 대상으로 평준화 진행 (90개 이상의 행 확보)
+df_gps_flat = df.head(20).explode("m_gps").reset_index(drop=True)
+df_gps_flat = df_gps_flat[df_gps_flat["m_gps"].notna()]
+
+# 딕셔너리 리스트 해제
+gps_normalized = pd.json_normalize(df_gps_flat["m_gps"])
+df_gps_flat = pd.concat([df_gps_flat.drop(columns=["m_gps"]), gps_normalized], axis=1)
+
+print(f"평준화된 GPS 데이터 크기 (Shape): {df_gps_flat.shape}")
+df_gps_flat.head(90)
+
+# %% [markdown]
 # ## 2. 수집된 GPS 데이터 포인트 개수 분석
 # 각 스캔 위치당 기록된 위치 좌표의 개수 분포를 파악합니다.
 
