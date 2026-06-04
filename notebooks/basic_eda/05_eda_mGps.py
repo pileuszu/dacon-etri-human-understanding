@@ -82,6 +82,43 @@ plt.xlabel("GPS 포인트 수")
 plt.ylabel("빈도 수")
 plt.show()
 
+# %%
+df["gps_log_count"].describe()
+
+# %% [markdown]
+# ### 2.1. 참여자별 GPS 데이터 포인트 개수 비교
+# 참여자별로 한 스캔 주기당 기록되는 GPS 데이터 포인트 수의 분포를 비교합니다.
+
+# %%
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=df, x="subject_id", y="gps_log_count", hue="subject_id", palette="Set3", legend=False)
+plt.title("참여자별 한 스캔당 GPS 포인트 수 분포 비교")
+plt.xlabel("참여자 ID")
+plt.ylabel("GPS 포인트 수")
+plt.show()
+
+# %% [markdown]
+# ### 2.2. 참여자별 시간대별 GPS 데이터 수집 흐름
+# 각 참여자가 하루 중 어느 시간대에 GPS 수집 빈도가 높아지는지 확인합니다.
+
+# %%
+df["hour"] = df["timestamp"].dt.hour
+hourly_gps = df.groupby(["subject_id", "hour"])["gps_log_count"].mean().reset_index()
+
+subjects = sorted(df["subject_id"].unique())
+fig, axes = plt.subplots(2, 5, figsize=(20, 8), sharex=True, sharey=True)
+axes = axes.flatten()
+
+for idx, sub in enumerate(subjects):
+    sub_data = hourly_gps[hourly_gps["subject_id"] == sub]
+    axes[idx].plot(sub_data["hour"], sub_data["gps_log_count"], color="teal", linewidth=2, marker="o")
+    axes[idx].set_title(f"참여자: {sub}", fontsize=11, fontweight="bold")
+    axes[idx].set_xticks(range(0, 24, 4))
+
+plt.suptitle("참여자별 시간대별 평균 수집 GPS 포인트 수 흐름", fontsize=16, fontweight="bold", y=1.02)
+plt.tight_layout()
+plt.show()
+
 # %% [markdown]
 # ## 3. 속도(Speed) 분포 탐색
 # GPS 데이터에서 측정된 이동 속도 정보를 확인하여 정지 상태와 이동 상태를 구분해 봅니다.
@@ -105,29 +142,61 @@ plt.ylabel("밀도")
 plt.show()
 
 # %% [markdown]
-# ## 4. 시간대별 이동 패턴 분석 (이동 속도가 0.5 m/s 이상인 빈도)
+# ### 3.1. 참여자별 최대 이동 속도 분포 비교
+# 각 수집 로그별 최대 속도를 계산하여 참여자들의 이동 속도 분포를 비교합니다.
 
 # %%
-df["hour"] = df["timestamp"].dt.hour
-
-# 각 로그별 최대 속도 추출
+# 각 로그별 최대 속도 추출 (전체 데이터 대상)
 def get_max_speed(gps_array):
     if gps_array is None or len(gps_array) == 0:
         return 0.0
     return max([p.get("speed", 0.0) for p in gps_array])
 
-# 빠른 처리를 위해 샘플 사용
-sample_df = df.sample(10000, random_state=42).copy()
-sample_df["max_speed"] = sample_df["m_gps"].apply(get_max_speed)
-sample_df["is_moving"] = (sample_df["max_speed"] > 0.5).astype(int)
+df["max_speed"] = df["m_gps"].apply(get_max_speed)
 
-moving_pattern = sample_df.groupby("hour")["is_moving"].mean().reset_index()
+plt.figure(figsize=(12, 6))
+# 시각화 편의를 위해 극단적인 이상치(차량 속도 이상 등)를 제외하고 30 m/s 이하인 범위만 박스플롯으로 시각화합니다.
+sns.boxplot(data=df[df["max_speed"] < 30], x="subject_id", y="max_speed", hue="subject_id", palette="Set3", legend=False)
+plt.title("참여자별 감지되는 최대 이동 속도 분포 비교 (30 m/s 이하)")
+plt.xlabel("참여자 ID")
+plt.ylabel("최대 이동 속도 (m/s)")
+plt.show()
+
+# %% [markdown]
+# ## 4. 시간대별 이동 패턴 분석 (이동 속도가 0.5 m/s 이상인 빈도)
+# 속도가 0.5 m/s(약 1.8 km/h) 이상인 경우 이동 상태로 판별하고, 시간대별 이동 상태의 비율을 전체 및 참여자별로 비교합니다.
+
+# %%
+df["is_moving"] = (df["max_speed"] > 0.5).astype(int)
+
+# 전체 시간대별 이동 비율
+moving_pattern = df.groupby("hour")["is_moving"].mean().reset_index()
 
 plt.figure(figsize=(12, 6))
 sns.barplot(data=moving_pattern, x="hour", y="is_moving", hue="hour", color="teal", legend=False)
-plt.title("시간대별 이동 중인 상태(속도 > 0.5m/s) 비율")
+plt.title("전체 시간대별 이동 중인 상태(속도 > 0.5m/s) 비율")
 plt.xlabel("시간대 (Hour)")
 plt.ylabel("이동 비율")
+plt.show()
+
+# %% [markdown]
+# ### 4.1. 참여자별 시간대별 이동 상태 비율 흐름
+# 참여자 개개인의 하루 중 이동 경향성과 패턴 차이를 심층적으로 파악합니다.
+
+# %%
+hourly_moving = df.groupby(["subject_id", "hour"])["is_moving"].mean().reset_index()
+
+fig, axes = plt.subplots(2, 5, figsize=(20, 8), sharex=True, sharey=True)
+axes = axes.flatten()
+
+for idx, sub in enumerate(subjects):
+    sub_data = hourly_moving[hourly_moving["subject_id"] == sub]
+    axes[idx].plot(sub_data["hour"], sub_data["is_moving"], color="darkcyan", linewidth=2, marker="o")
+    axes[idx].set_title(f"참여자: {sub}", fontsize=11, fontweight="bold")
+    axes[idx].set_xticks(range(0, 24, 4))
+
+plt.suptitle("참여자별 시간대별 이동 중인 상태(속도 > 0.5m/s) 비율 흐름", fontsize=16, fontweight="bold", y=1.02)
+plt.tight_layout()
 plt.show()
 
 # %% [markdown]
